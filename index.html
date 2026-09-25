@@ -1,178 +1,123 @@
 <!doctype html>
 <html lang="ms">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,maximum-scale=1,user-scalable=no" />
-<title>Legenda Pena Naga — Versi Pixel Menulis</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Legenda Pena Naga — Pengembaraan Menulis</title>
 <style>
-  :root{
-    --panel: rgba(14, 25, 38, .92);
-    --panel2: rgba(21, 35, 50, .95);
-    --line: rgba(255,255,255,.16);
-    --text: #f8f6ef;
-    --muted: #d6dde7;
-    --gold: #f0cf70;
-    --ok: #a6efae;
-    --bad: #ffb2ae;
-    --blue: #7ec8ff;
-  }
-  *{box-sizing:border-box}
-  html,body{
-    margin:0;height:100%;overflow:hidden;background:#0d1520;color:var(--text);
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  }
-  canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
-  button,input{font:inherit}
-  button{cursor:pointer}
-  .glass{
-    background:var(--panel);
-    border:1px solid var(--line);
-    box-shadow:0 12px 42px rgba(0,0,0,.28);
-    backdrop-filter:blur(10px);
-  }
-  .btn{
-    border:0;border-radius:14px;padding:10px 14px;
-    background:#e9eef4;color:#13202d;font-weight:900;
-  }
-  .btn.alt{background:#33485d;color:#fff;border:1px solid rgba(255,255,255,.16)}
-  .btn.gold{background:var(--gold);color:#34250b}
-  .btn.small{padding:8px 11px;font-size:14px}
-  #topbar{
-    position:fixed;left:12px;right:12px;top:12px;z-index:8;
-    display:flex;justify-content:space-between;gap:10px;pointer-events:none;
-  }
-  #status,#actions{display:flex;gap:8px;align-items:center;pointer-events:auto}
-  .chip{
-    padding:9px 12px;border-radius:14px;font-weight:900;font-size:14px;
-  }
-  #missionBox{
-    position:fixed;left:12px;top:68px;width:min(400px,calc(100vw - 24px));
-    padding:14px 16px;border-radius:18px;z-index:7;
-  }
-  #missionTitle{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);font-weight:950}
-  #objective{margin-top:5px;font-size:18px;line-height:1.35;font-weight:950}
-  #hint{margin-top:8px;color:var(--muted);font-size:14px;line-height:1.4}
-  #writingFocus{
-    margin-top:10px;padding:10px 12px;border-radius:12px;
-    background:rgba(255,255,255,.06);font-size:14px;line-height:1.4;
-  }
-  #prompt{
-    position:fixed;left:50%;bottom:122px;transform:translateX(-50%);
-    padding:10px 14px;border-radius:14px;z-index:8;font-weight:900;display:none;
-  }
-  #toast{
-    position:fixed;left:50%;top:16%;transform:translateX(-50%);
-    padding:12px 18px;border-radius:14px;z-index:20;display:none;
-    max-width:min(560px,90vw);text-align:center;font-weight:900;
-  }
-  #miniMap{
-    position:fixed;right:12px;top:68px;width:136px;height:136px;z-index:7;border-radius:18px;
-  }
-  #mini{width:100%;height:100%;border-radius:18px}
-  #crosshair{
-    position:fixed;left:50%;top:50%;width:8px;height:8px;border-radius:50%;
-    background:rgba(255,255,255,.72);transform:translate(-50%,-50%);
-    z-index:2;pointer-events:none;
-  }
-  #startScreen,#modal,#helpScreen,#finishScreen{
-    position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
-    padding:20px;background:linear-gradient(rgba(5,10,18,.7), rgba(5,10,18,.84));
-  }
-  #modal,#helpScreen,#finishScreen{display:none}
-  .card{
-    width:min(760px,95vw);max-height:90vh;overflow:auto;border-radius:24px;
-    padding:24px;background:var(--panel2);border:1px solid var(--line);
-    box-shadow:0 18px 70px rgba(0,0,0,.38);
-  }
-  .eyebrow{color:var(--gold);font-size:13px;font-weight:950;text-transform:uppercase;letter-spacing:.12em}
-  h1{font-size:clamp(30px,6vw,52px);line-height:1.05;margin:8px 0 10px}
-  h2{font-size:clamp(24px,4vw,34px);margin:6px 0 12px}
-  p{font-size:17px;line-height:1.56}
-  .guide{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
-  .guide div{
-    background:rgba(255,255,255,.06);border:1px solid var(--line);
-    border-radius:15px;padding:12px;font-size:14px;line-height:1.45;
-  }
-  .guide b{display:block;color:var(--gold);margin-bottom:4px}
-  .dialogue{
-    background:rgba(255,255,255,.06);border-left:4px solid var(--gold);
-    padding:13px 15px;border-radius:12px;margin:12px 0;font-size:18px;line-height:1.52;
-  }
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .choices{display:grid;gap:10px;margin-top:12px}
-  .choice{
-    border:1px solid var(--line);background:rgba(255,255,255,.07);color:#fff;
-    padding:14px;border-radius:15px;text-align:left;font-weight:900;
-  }
-  .choice:hover{background:rgba(255,255,255,.11)}
-  .modelText{
-    font-size:clamp(24px,4.8vw,36px);font-weight:950;letter-spacing:.03em;
-    background:#f4efdb;color:#182530;border-radius:16px;padding:15px 17px;
-    margin:14px 0;text-align:center;
-  }
-  #writeInput{
-    width:100%;border:2px solid #7c97aa;background:#fff;color:#17222b;
-    border-radius:14px;padding:14px 16px;font-size:22px;font-weight:850;outline:none;
-  }
-  #writeInput:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(240,207,112,.18)}
-  #feedback{min-height:28px;margin:10px 0;font-weight:900}
-  .success{color:var(--ok)} .error{color:var(--bad)}
-  .note{font-size:13px;color:var(--muted)}
-  .badge{
-    display:inline-block;padding:7px 10px;border-radius:999px;
-    background:rgba(240,207,112,.15);color:var(--gold);font-weight:900;margin:4px 4px 0 0;
-  }
-  #touch{
-    position:fixed;left:12px;right:12px;bottom:12px;z-index:10;
-    display:none;justify-content:space-between;align-items:flex-end;pointer-events:none;
-  }
-  .pad,.touchActions{display:grid;gap:8px;pointer-events:auto}
-  .pad{grid-template-columns:58px 58px 58px;grid-template-areas:". up ." "left down right"}
-  .touchActions{grid-template-columns:68px 68px}
-  .touchBtn{
-    height:58px;border:1px solid rgba(255,255,255,.28);
-    background:rgba(18,31,45,.78);color:#fff;border-radius:18px;
-    font-weight:1000;font-size:18px;touch-action:none;user-select:none;
-  }
-  .up{grid-area:up}.left{grid-area:left}.down{grid-area:down}.right{grid-area:right}
-  .touchBtn.action{height:68px;background:rgba(240,207,112,.9);color:#34250b}
-  .touchBtn.jump{height:68px}
-  @media (max-width:700px){
-    #miniMap{display:none}
-    #missionBox{width:calc(100vw - 24px)}
-    #prompt{bottom:158px}
-    #touch{display:flex}
-    .guide,.grid2{grid-template-columns:1fr}
-    .card{padding:20px}
-  }
-  @media (pointer:coarse){#touch{display:flex}}
+:root{
+  --ink:#18222c; --paper:#f6eed8; --gold:#d9b45c; --cream:#fff9eb;
+  --night:rgba(12,20,30,.91); --night2:rgba(20,31,42,.95);
+  --line:rgba(255,255,255,.16); --ok:#9be6a5; --bad:#ffb0a6;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#101923;color:#fff;font-family:Arial,"Segoe UI",sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.glass{background:var(--night);border:1px solid var(--line);box-shadow:0 14px 45px rgba(0,0,0,.3);backdrop-filter:blur(8px)}
+#hud{position:fixed;left:14px;right:14px;top:14px;z-index:10;display:flex;justify-content:space-between;gap:10px;pointer-events:none}
+#hud>div{pointer-events:auto}
+.pill{display:inline-flex;gap:7px;align-items:center;padding:9px 12px;border-radius:14px;font-weight:800;font-size:14px;margin-right:6px}
+.btn{border:0;border-radius:13px;padding:10px 14px;font-weight:800;background:#eef3f6;color:#16222c}
+.btn.dark{background:#31485b;color:#fff;border:1px solid rgba(255,255,255,.14)}
+.btn.gold{background:var(--gold);color:#2d240f}
+.btn.small{padding:8px 11px;font-size:14px}
+#mission{position:fixed;left:14px;top:70px;width:min(390px,calc(100vw - 28px));z-index:9;border-radius:18px;padding:14px 16px}
+#mission .label{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#efd68e;font-weight:900}
+#mission h3{margin:5px 0 4px;font-size:19px;line-height:1.3}
+#mission p{margin:0;color:#dce5eb;font-size:14px;line-height:1.4}
+#writingDock{position:fixed;right:14px;bottom:14px;width:min(410px,calc(100vw - 28px));z-index:9;border-radius:20px;overflow:hidden}
+#writingHeader{padding:11px 14px;background:rgba(214,178,90,.18);border-bottom:1px solid var(--line);font-weight:900}
+#writingBody{padding:13px 14px}
+#writingBody .mini{font-size:13px;color:#d7e0e7;line-height:1.4}
+#writingPreview{margin-top:9px;background:#fff7e1;color:#1d2933;border-radius:12px;padding:10px 12px;font-weight:800;min-height:42px;border:1px solid #ddcfab}
+#interactPrompt{position:fixed;left:50%;bottom:118px;transform:translateX(-50%);z-index:12;padding:10px 15px;border-radius:14px;font-weight:900;display:none}
+#toast{position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:40;display:none;padding:12px 18px;border-radius:14px;max-width:min(560px,90vw);text-align:center;font-weight:800}
+.screen{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(rgba(6,12,19,.56),rgba(6,12,19,.80))}
+#modal,#help,#finish{display:none}
+.card{width:min(790px,95vw);max-height:91vh;overflow:auto;background:var(--night2);border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 20px 70px rgba(0,0,0,.42)}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#efd68e;font-weight:900}
+h1{font-size:clamp(31px,6vw,54px);line-height:1.04;margin:7px 0 12px}
+h2{font-size:clamp(24px,4vw,34px);margin:6px 0 12px}
+p{font-size:17px;line-height:1.55}
+.introGrid,.twoCol{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0}
+.introGrid>div,.infoBox{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:14px;padding:12px;font-size:14px;line-height:1.45}
+.introGrid b,.infoBox b{display:block;color:#efd68e;margin-bottom:4px}
+.dialog{background:rgba(255,255,255,.06);border-left:4px solid var(--gold);padding:13px 15px;border-radius:12px;margin:12px 0;font-size:17px;line-height:1.5}
+.book{
+  position:relative;background:linear-gradient(90deg,#efe2bf 0,#fff8e8 48%,#ead8ad 50%,#fff8e8 52%,#efe2bf 100%);
+  color:var(--ink);border-radius:18px;padding:18px 18px 19px;margin:14px 0;border:1px solid #d2c293;box-shadow:inset 0 0 28px rgba(95,72,30,.11)
+}
+.book:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(93,69,30,.18)}
+.bookTitle{font-weight:900;color:#6c5425;margin-bottom:8px}
+.model{
+  font-size:clamp(22px,4.5vw,34px);font-weight:900;text-align:center;background:rgba(255,255,255,.65);
+  padding:14px;border-radius:12px;border:1px dashed #aa9157;margin:10px 0 12px
+}
+textarea{
+  width:100%;min-height:118px;resize:vertical;border:2px solid #b7a77d;border-radius:12px;padding:14px 15px;
+  font-size:22px;font-weight:700;line-height:1.55;color:#1b2731;background:
+  repeating-linear-gradient(#fffdf8 0,#fffdf8 38px,#d9e4eb 39px,#fffdf8 40px);
+  outline:none
+}
+textarea:focus{border-color:#bd9135;box-shadow:0 0 0 4px rgba(217,180,92,.18)}
+.feedback{min-height:28px;margin:10px 0;font-weight:900}
+.good{color:var(--ok)} .bad{color:var(--bad)}
+.choiceGrid{display:grid;gap:9px;margin:12px 0}
+.choice{padding:14px;border-radius:13px;border:1px solid var(--line);background:rgba(255,255,255,.07);color:#fff;text-align:left;font-weight:800}
+.choice:hover{background:rgba(255,255,255,.12)}
+.scaffold{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
+.wordchip{background:#e9dfc3;color:#2a332f;border:1px solid #cabc92;border-radius:10px;padding:7px 10px;font-weight:800}
+.badge{display:inline-block;padding:7px 10px;margin:3px;border-radius:999px;background:rgba(217,180,92,.16);color:#efd68e;font-weight:900}
+#touch{position:fixed;left:14px;bottom:14px;z-index:13;display:none;gap:9px;align-items:end}
+.pad{display:grid;grid-template-columns:56px 56px 56px;grid-template-areas:". up ." "left down right";gap:6px}
+.touchBtn{height:56px;border:1px solid rgba(255,255,255,.24);border-radius:16px;background:rgba(17,29,42,.78);color:#fff;font-weight:900;touch-action:none}
+.up{grid-area:up}.left{grid-area:left}.down{grid-area:down}.right{grid-area:right}
+.actionCol{display:grid;gap:7px}
+.actionCol .touchBtn{width:72px}.actionCol .go{background:rgba(217,180,92,.9);color:#30250d}
+.note{font-size:13px;color:#d4dde4}
+@media(max-width:760px){
+ #writingDock{display:none}
+ #mission{top:67px}
+ .introGrid,.twoCol{grid-template-columns:1fr}
+ #touch{display:flex}
+ #interactPrompt{bottom:155px}
+ .card{padding:20px}
+}
+@media(pointer:coarse){#touch{display:flex}}
 </style>
 </head>
 <body>
-<canvas id="gl"></canvas>
-<div id="crosshair"></div>
+<canvas id="game"></canvas>
 
-<div id="topbar">
-  <div id="status">
-    <div class="chip glass">⭐ <span id="score">0</span></div>
-    <div class="chip glass">✍️ <span id="stageText">Misi 1/3</span></div>
+<div id="hud">
+  <div>
+    <span class="pill glass">⭐ <span id="score">0</span></span>
+    <span class="pill glass">✍️ <span id="stage">Misi 1/3</span></span>
   </div>
-  <div id="actions">
-    <button class="btn small alt" id="helpBtn">Panduan</button>
-    <button class="btn small alt" id="pauseBtn">Jeda</button>
-    <button class="btn small alt" id="restartBtn">Main semula</button>
+  <div>
+    <button id="helpBtn" class="btn small dark">Panduan</button>
+    <button id="pauseBtn" class="btn small dark">Jeda</button>
+    <button id="restartBtn" class="btn small dark">Main semula</button>
   </div>
 </div>
 
-<div id="missionBox" class="glass">
-  <div id="missionTitle">Misi 1 · Papan tanda hutan</div>
-  <div id="objective">Cari Piko dan bantu memulihkan frasa pada papan tanda.</div>
-  <div id="hint">Bergerak ke arah cahaya jingga. Apabila hampir, tekan <b>E</b>.</div>
-  <div id="writingFocus"><b>Fokus kemahiran:</b> Menyalin frasa dan ayat tunggal dengan kemas, mengikut ejaan, huruf besar dan tanda noktah.</div>
-</div>
+<section id="mission" class="glass">
+  <div class="label">Tugasan semasa</div>
+  <h3 id="missionTitle">Cari Piko di taman istana.</h3>
+  <p id="missionHint">Ikut cahaya jingga. Apabila hampir, tekan E untuk berinteraksi.</p>
+</section>
 
-<div id="miniMap" class="glass"><canvas id="mini" width="264" height="264"></canvas></div>
-<div id="prompt" class="glass">Tekan E untuk berinteraksi</div>
+<section id="writingDock" class="glass">
+  <div id="writingHeader">Buku Menulis</div>
+  <div id="writingBody">
+    <div class="mini">Setiap misi mempunyai ruang menulis besar. Murid boleh melihat contoh, menaip perlahan-lahan dan membetulkan jawapan tanpa had masa.</div>
+    <div id="writingPreview">Misi 1: Salin satu frasa pendek.</div>
+  </div>
+</section>
+
+<div id="interactPrompt" class="glass">Tekan E untuk berinteraksi</div>
 <div id="toast" class="glass"></div>
 
 <div id="touch">
@@ -182,56 +127,57 @@
     <button class="touchBtn down" data-key="back">▼</button>
     <button class="touchBtn right" data-key="right">▶</button>
   </div>
-  <div class="touchActions">
-    <button class="touchBtn jump" data-key="jump">Lompat</button>
-    <button class="touchBtn action" data-key="interact">E</button>
+  <div class="actionCol">
+    <button class="touchBtn" data-key="jump">Lompat</button>
+    <button class="touchBtn go" data-key="interact">E</button>
   </div>
 </div>
 
-<div id="startScreen">
+<div id="start" class="screen">
   <div class="card">
-    <div class="eyebrow">Bahasa Melayu Tahun 5 · Fokus Kemahiran Menulis</div>
-    <h1>Legenda Pena Naga:<br>Kerajaan Tanpa Kata</h1>
-    <p>Pada suatu hari, kabus gelap memadamkan tulisan di seluruh Kerajaan Aksara. Seorang kesatria muda perlu meneroka dunia pixel bersama Piko dan berdepan dengan naga penjaga untuk memulihkan tulisan yang hilang. Pemain hanya dapat membuka laluan seterusnya dengan menyalin frasa dan ayat tunggal secara tepat dan kemas.</p>
-    <div class="guide">
-      <div><b>🎮 Komputer</b>W/S atau ↑/↓ untuk bergerak, A/D atau ←/→ untuk berpusing, Space untuk melompat dan E untuk berinteraksi.</div>
-      <div><b>📱 Telefon / tablet</b>Gunakan butang arah, Lompat dan E pada skrin.</div>
-      <div><b>🧠 Mesra murid slow learner</b>Tiada had masa, contoh sentiasa dipaparkan, maklum balas jelas dan pemain boleh mencuba semula.</div>
+    <div class="eyebrow">Bahasa Melayu Tahun 5 · Kemahiran Menulis</div>
+    <h1>Legenda Pena Naga</h1>
+    <p>Kabus Dakwat telah memadamkan tulisan di seluruh Kerajaan Aksara. Seorang kesatria muda perlu membantu penduduk memulihkan papan tanda, jambatan dan menara dengan menulis frasa serta ayat tunggal secara tepat.</p>
+    <div class="introGrid">
+      <div><b>Fokus pembelajaran</b>SK 3.1 Asas Menulis dan SP 3.1.1 menulis secara mekanis frasa dan ayat tunggal.</div>
+      <div><b>Sesuai untuk slow learner</b>Satu arahan pada satu masa, ayat pendek, contoh jelas, tiada had masa dan percubaan tanpa had.</div>
+      <div><b>Kawalan</b>W/S atau anak panah untuk bergerak, A/D untuk berpusing, Space untuk melompat dan E untuk berinteraksi.</div>
     </div>
-    <p class="note">Fokus pembelajaran: SK 3.1 Asas Menulis; SP 3.1.1 menulis secara mekanis frasa dan ayat tunggal. Mata permainan ialah ganjaran motivasi dan bukan Tahap Penguasaan.</p>
-    <button class="btn gold" id="startBtn">Mulakan permainan</button>
+    <p class="note">Mata digunakan sebagai ganjaran motivasi dalam permainan dan bukan sebagai Tahap Penguasaan.</p>
+    <button id="startBtn" class="btn gold">Mulakan pengembaraan</button>
   </div>
 </div>
 
-<div id="helpScreen">
+<div id="help" class="screen">
   <div class="card">
-    <div class="eyebrow">Panduan ringkas</div>
+    <div class="eyebrow">Panduan</div>
     <h2>Cara bermain</h2>
-    <p>Ikut objektif di bahagian kiri atas. Cari watak atau tempat bercahaya, kemudian tekan <b>E</b>. Setiap cabaran meminta pemain menyalin frasa atau ayat tunggal dengan tepat. Jika tersilap, baca maklum balas, semak ejaan dan cuba semula.</p>
-    <div class="grid2">
-      <div class="dialogue"><b>Pena Cahaya</b><br>Setiap tulisan yang betul akan memulihkan warna dunia, membuka laluan baharu dan menambah mata permainan.</div>
-      <div class="dialogue"><b>Tip menulis</b><br>Perhatikan susunan perkataan, huruf besar di awal ayat dan tanda noktah pada akhir ayat.</div>
+    <div class="twoCol">
+      <div class="infoBox"><b>1. Teroka</b>Ikut cahaya penanda untuk mencari watak atau lokasi misi.</div>
+      <div class="infoBox"><b>2. Baca contoh</b>Apabila buku latihan dibuka, lihat frasa atau ayat contoh dengan teliti.</div>
+      <div class="infoBox"><b>3. Tulis</b>Taip semula pada ruang bergaris. Jika tersilap, petunjuk akan diberikan.</div>
     </div>
-    <button class="btn gold" id="closeHelp">Sambung bermain</button>
+    <p>Tiada kiraan masa. Murid boleh mengambil masa, menggunakan petunjuk dan mencuba semula sehingga berjaya.</p>
+    <button id="closeHelp" class="btn gold">Sambung bermain</button>
   </div>
 </div>
 
-<div id="modal">
-  <div class="card" id="modalCard"></div>
+<div id="modal" class="screen">
+  <div id="modalCard" class="card"></div>
 </div>
 
-<div id="finishScreen">
+<div id="finish" class="screen">
   <div class="card">
-    <div class="eyebrow">Permainan tamat</div>
-    <h1>Kerajaan Aksara kembali bersinar!</h1>
-    <p id="endingText"></p>
-    <div class="dialogue"><b>Markah akhir:</b> <span id="finalScore"></span><br><span class="note">Markah ini digunakan sebagai ganjaran motivasi dalam permainan sahaja.</span></div>
-    <span class="badge">🏅 Penjaga Pena</span>
-    <span class="badge">🐉 Sahabat Naga</span>
-    <span class="badge">✍️ Penulis Cermat</span>
-    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn gold" id="replayBtn">Main semula</button>
-      <button class="btn alt" id="downloadBtn">Muat turun rekod permainan</button>
+    <div class="eyebrow">Pengembaraan selesai</div>
+    <h1>Kerajaan Aksara kembali pulih!</h1>
+    <p id="ending"></p>
+    <div class="dialog"><b>Markah akhir:</b> <span id="finalScore"></span><br><span class="note">Markah ini ialah ganjaran motivasi sahaja.</span></div>
+    <span class="badge">Penjaga Pena</span>
+    <span class="badge">Penulis Cermat</span>
+    <span class="badge">Sahabat Naga</span>
+    <div style="margin-top:16px;display:flex;gap:9px;flex-wrap:wrap">
+      <button id="replayBtn" class="btn gold">Main semula</button>
+      <button id="downloadBtn" class="btn dark">Muat turun rekod</button>
     </div>
   </div>
 </div>
@@ -239,623 +185,467 @@
 <script>
 (() => {
 "use strict";
-const canvas = document.getElementById("gl");
-const gl = canvas.getContext("webgl", {antialias:true, alpha:false});
-if(!gl){ alert("Pelayar ini tidak menyokong WebGL."); return; }
+const $=id=>document.getElementById(id);
+const canvas=$("game");
+const gl=canvas.getContext("webgl",{antialias:true,alpha:false});
+if(!gl){alert("Pelayar ini tidak menyokong WebGL.");return;}
 
-const $ = id => document.getElementById(id);
-const scoreEl=$("score"), stageText=$("stageText"), missionTitle=$("missionTitle"), objective=$("objective"), hint=$("hint");
-const promptEl=$("prompt"), toastEl=$("toast"), modal=$("modal"), modalCard=$("modalCard"), finish=$("finishScreen");
+let started=false,paused=false,modalOpen=false,finished=false;
+let score=0,mission=1,sub=0,choice=null,secret=false;
+let wrong=[0,0,0],world=0;
+const player={x:0,y:.9,z:-11,yaw:0,vy:0,onGround:true};
+const keys={forward:false,back:false,left:false,right:false};
 
-let started=false, paused=false, modalOpen=false, finished=false;
-let score=0, mission=1, substage=0, choice=null, secretFound=false;
-let wrongCounts=[0,0,0];
-let worldLevel=0;
-
-const player={x:0,y:.7,z:-10,yaw:0,vy:0,onGround:true};
-const keys={forward:false,back:false,left:false,right:false,run:false};
-
-const npcs={
-  piko:{x:-5.2,z:-4.8,name:"Piko"},
-  dragon:{x:5.8,z:0.4,name:"Arunika"},
-  tablet:{x:8,z:4.8,name:"Batu Petunjuk"},
-  tower:{x:0,z:9.0,name:"Menara Dakwat"},
-  secret:{x:-8.4,z:6.7,name:"Gulungan Rahsia"}
+const targets={
+ piko:{x:-5.7,z:-4.7},
+ dragon:{x:5.7,z:.8},
+ stone:{x:8,z:5.1},
+ tower:{x:0,z:10},
+ secret:{x:-8,z:7}
 };
 
-function setMission(title,obj,h){
-  missionTitle.textContent=title;
-  objective.textContent=obj;
-  hint.innerHTML=h;
-  stageText.textContent=`Misi ${mission}/3`;
+const missionText=[
+ "Misi 1: Salin satu frasa pendek.",
+ "Misi 2: Salin satu ayat tunggal mudah.",
+ "Misi 3: Salin satu ayat tunggal lengkap."
+];
+
+function setMission(title,hint){
+ $("missionTitle").textContent=title;
+ $("missionHint").innerHTML=hint;
+ $("stage").textContent=`Misi ${mission}/3`;
+ $("writingPreview").textContent=missionText[mission-1];
 }
 function toast(msg,good=true){
-  toastEl.textContent=msg;
-  toastEl.style.display="block";
-  toastEl.style.borderColor=good ? "rgba(166,239,174,.6)" : "rgba(255,178,174,.6)";
-  clearTimeout(toast.t);
-  toast.t=setTimeout(()=>toastEl.style.display="none",2200);
+ const el=$("toast");el.textContent=msg;el.style.display="block";
+ el.style.borderColor=good?"rgba(155,230,165,.55)":"rgba(255,176,166,.55)";
+ clearTimeout(toast.t);toast.t=setTimeout(()=>el.style.display="none",2200);
 }
-function normalizeWords(s){
-  return s.trim().replace(/\s+/g," ").toLowerCase().replace(/[.!?]/g,"");
+function addScore(n){score=Math.max(0,score+n);$("score").textContent=score}
+function closeModal(){ $("modal").style.display="none";modalOpen=false}
+function openModal(html){$("modalCard").innerHTML=html;$("modal").style.display="flex";modalOpen=true}
+function normText(s){return s.trim().replace(/\s+/g," ").toLowerCase().replace(/[.!?]/g,"")}
+function checkAnswer(s,target){
+ const t=s.trim().replace(/\s+/g," ");
+ if(t===target)return{ok:true,msg:"Tahniah! Tulisan anda tepat dan kemas."};
+ if(normText(t)===normText(target))return{ok:false,msg:"Hampir betul. Semak huruf besar atau tanda noktah.",penalty:5};
+ return{ok:false,msg:"Belum tepat. Lihat contoh dan salin semula satu perkataan demi satu perkataan.",penalty:5};
 }
-function validateWriting(input,target,idx){
-  const trimmed=input.trim().replace(/\s+/g," ");
-  if(trimmed===target){
-    return {ok:true, penalty:0, msg:"Tahniah! Tulisan anda tepat dan kemas."};
+
+function writingTask(cfg){
+ openModal(`
+  <div class="eyebrow">${cfg.speaker}</div>
+  <div class="dialog">${cfg.dialog}</div>
+  <div class="book">
+    <div class="bookTitle">${cfg.title}</div>
+    <div class="note" style="color:#655b46">${cfg.instruction}</div>
+    ${cfg.chips ? `<div class="scaffold">${cfg.chips.map(x=>`<span class="wordchip">${x}</span>`).join("")}</div>`:""}
+    <div class="model">${cfg.target}</div>
+    <textarea id="answerBox" spellcheck="false" autocapitalize="sentences" placeholder="Tulis jawapan di sini..."></textarea>
+  </div>
+  <div id="feedback" class="feedback"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button id="checkBtn" class="btn gold">Semak tulisan</button>
+    <button id="hintBtn" class="btn dark">Petunjuk</button>
+    <button id="clearBtn" class="btn dark">Kosongkan</button>
+  </div>
+ `);
+ const box=$("answerBox"),fb=$("feedback");
+ box.focus();
+ $("clearBtn").onclick=()=>{box.value="";box.focus()};
+ $("hintBtn").onclick=()=>{
+   fb.className="feedback";
+   fb.style.color="#efd68e";
+   fb.textContent=cfg.hint;
+ };
+ $("checkBtn").onclick=()=>{
+   const r=checkAnswer(box.value,cfg.target);
+   if(r.ok){
+     fb.className="feedback good";fb.textContent=r.msg;
+     setTimeout(()=>{closeModal();cfg.success()},550);
+   }else{
+     wrong[cfg.index]++;addScore(-(r.penalty||5));
+     fb.className="feedback bad";fb.textContent=r.msg;
+     box.focus();
+   }
+ };
+ box.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("checkBtn").click()}});
+}
+
+function task1(){
+ writingTask({
+  speaker:"Piko · Penjaga Taman",
+  dialog:"Tulisan pada papan tanda taman telah hilang. Bantu saya menulis semula frasa ini.",
+  title:"Latihan 1 · Salin frasa",
+  instruction:"Baca frasa. Kemudian taip semula dengan susunan yang sama.",
+  target:"pedang berkilau",
+  chips:["pedang","berkilau"],
+  hint:"Mulakan dengan perkataan “pedang”, kemudian tulis “berkilau”.",
+  index:0,
+  success(){
+    addScore(100);world=1;mission=2;sub=0;
+    setMission("Temui Arunika di jambatan.","Ikut cahaya merah. Tekan <b>E</b> apabila hampir.");
+    toast("Bagus! Frasa berjaya ditulis. +100 mata");
   }
-  if(normalizeWords(trimmed)===normalizeWords(target)){
-    return {ok:false, penalty:5, msg:"Hampir betul. Semak huruf besar atau tanda noktah."};
-  }
-  return {ok:false, penalty:10, msg:"Belum tepat. Salin semula mengikut contoh yang dipaparkan."};
+ });
 }
-function addScore(n){ score=Math.max(0,score+n); scoreEl.textContent=score; }
-function closeModal(){ modal.style.display="none"; modalOpen=false; }
-function showModal(html){ modalCard.innerHTML=html; modal.style.display="flex"; modalOpen=true; }
-
-function writingChallenge({speaker,dialogue,target,idx,tip,onSuccess}){
-  showModal(`
-    <div class="eyebrow">${speaker}</div>
-    <div class="dialogue">${dialogue}</div>
-    <p><b>Arahan:</b> Salin tulisan di bawah dengan tepat.</p>
-    <div class="modelText">${target}</div>
-    <div class="note" style="margin-bottom:10px">Tip: ${tip}</div>
-    <input id="writeInput" autocomplete="off" autocapitalize="sentences" spellcheck="false" aria-label="Ruang menulis">
-    <div id="feedback"></div>
-    <div style="display:flex;gap:9px;flex-wrap:wrap">
-      <button class="btn gold" id="checkWrite">Semak tulisan</button>
-      <button class="btn alt" id="clearWrite">Kosongkan</button>
-    </div>
-  `);
-  const input=$("writeInput"), fb=$("feedback");
-  input.focus();
-  $("clearWrite").onclick=()=>{input.value=""; input.focus();};
-  $("checkWrite").onclick=()=>{
-    const r=validateWriting(input.value,target,idx);
-    if(r.ok){
-      fb.className="success";
-      fb.textContent=r.msg;
-      setTimeout(()=>{closeModal(); onSuccess();},550);
-    }else{
-      wrongCounts[idx]++;
-      addScore(-r.penalty);
-      fb.className="error";
-      fb.textContent=r.msg;
-      input.focus();
-      input.select();
-    }
-  };
-  input.addEventListener("keydown",e=>{ if(e.key==="Enter") $("checkWrite").click(); });
-}
-
-function meetPiko(){
-  writingChallenge({
-    speaker:"Piko · Penjaga Hutan",
-    dialogue:"Tulisan pada papan tanda hutan telah hilang. Tolong pulihkan frasa ini supaya laluan kembali jelas.",
-    target:"burung phoenix",
-    idx:0,
-    tip:"Pastikan semua huruf kecil kerana ini ialah frasa, bukan ayat lengkap.",
-    onSuccess:()=>{
-      addScore(100);
-      worldLevel=1;
-      mission=2;
-      substage=0;
-      setMission("Misi 2 · Jambatan naga","Temui Arunika dan bantu memulihkan ayat pada jambatan.","Pergi ke arah cahaya merah. Tekan <b>E</b> apabila hampir.");
-      toast("Misi 1 selesai. Hutan kembali berwarna. +100 mata");
-    }
-  });
-}
-
 function dragonChoice(){
-  showModal(`
-    <div class="eyebrow">Arunika · Naga penjaga</div>
-    <div class="dialogue">Tulisan pada jambatan telah pudar. Sebelum kita membaikinya, adakah kamu mahu terus membantu saya atau menyemak bukti pada batu petunjuk dahulu?</div>
-    <div class="choices">
-      <button class="choice" id="trust">🤝 Terus membantu Arunika.</button>
-      <button class="choice" id="evidence">🔎 Semak bukti pada batu petunjuk dahulu.</button>
-    </div>
-  `);
-  $("trust").onclick=()=>{ choice="trust"; closeModal(); dragonWriting(); };
-  $("evidence").onclick=()=>{
-    choice="evidence";
-    substage=1;
-    closeModal();
-    setMission("Misi 2 · Cari bukti","Cari Batu Petunjuk di hujung kanan lembah.","Ikut cahaya biru. Tekan <b>E</b> untuk membaca petunjuk.");
-    toast("Cari bukti terlebih dahulu, kemudian kembali kepada Arunika.");
-  };
+ openModal(`
+  <div class="eyebrow">Arunika · Naga Penjaga</div>
+  <div class="dialog">Jambatan ini tidak dapat dibuka kerana ayat pada batu kunci telah hilang.</div>
+  <p>Pilih tindakan anda. Kedua-dua pilihan akan membawa kepada latihan menulis.</p>
+  <div class="choiceGrid">
+    <button class="choice" id="direct">Bantu Arunika terus.</button>
+    <button class="choice" id="evidence">Baca Batu Petunjuk dahulu.</button>
+  </div>
+ `);
+ $("direct").onclick=()=>{choice="direct";closeModal();task2()};
+ $("evidence").onclick=()=>{
+   choice="evidence";sub=1;closeModal();
+   setMission("Cari Batu Petunjuk.","Pergi ke cahaya biru di sebelah kanan lembah dan tekan <b>E</b>.");
+ };
 }
-
-function tabletInteraction(){
-  showModal(`
-    <div class="eyebrow">Batu Petunjuk</div>
-    <div class="dialogue">Tulisan lama pada batu ini menyatakan bahawa Arunika menjaga jambatan supaya Kabus Dakwat tidak memasuki kampung.</div>
-    <p>Kini anda telah memperoleh maklumat yang jelas. Kembali kepada Arunika untuk meneruskan misi.</p>
-    <button class="btn gold" id="continueTablet">Kembali kepada Arunika</button>
-  `);
-  $("continueTablet").onclick=()=>{
-    closeModal();
-    substage=2;
-    setMission("Misi 2 · Pulihkan jambatan","Kembali kepada Arunika.","Pergi ke arah cahaya merah dan tekan <b>E</b>.");
-  };
+function stoneTask(){
+ openModal(`
+  <div class="eyebrow">Batu Petunjuk</div>
+  <div class="dialog">Ukiran pada batu menerangkan bahawa Arunika menjaga jambatan daripada Kabus Dakwat.</div>
+  <p>Anda telah memperoleh maklumat tambahan. Kembali kepada Arunika untuk menulis ayat pada batu kunci.</p>
+  <button id="backDragon" class="btn gold">Kembali kepada Arunika</button>
+ `);
+ $("backDragon").onclick=()=>{
+   closeModal();sub=2;
+   setMission("Kembali kepada Arunika.","Ikut cahaya merah dan tekan <b>E</b>.");
+ };
 }
-
-function dragonWriting(){
-  writingChallenge({
-    speaker:"Arunika · Naga penjaga",
-    dialogue: choice==="evidence"
-      ? "Tindakan kamu menyemak bukti terlebih dahulu sangat baik. Sekarang, salin ayat pada papan jambatan ini."
-      : "Terima kasih kerana sudi membantu. Sekarang, salin ayat pada papan jambatan ini.",
-    target:"Naga itu menjaga jambatan.",
-    idx:1,
-    tip:"Pastikan ayat bermula dengan huruf besar dan berakhir dengan tanda noktah.",
-    onSuccess:()=>{
-      addScore(100);
-      worldLevel=2;
-      mission=3;
-      substage=0;
-      setMission("Misi 3 · Menara Dakwat","Pergi ke Menara Dakwat dan pulihkan ayat terakhir.","Cari cahaya ungu di utara. Anda juga boleh mencari rahsia pilihan.");
-      toast("Misi 2 selesai. Jambatan telah pulih. +100 mata");
-    }
-  });
-}
-
-function towerWriting(){
-  writingChallenge({
-    speaker:"Pena Cahaya",
-    dialogue:"Hanya satu ayat yang lengkap dan kemas dapat menghapuskan Kabus Dakwat. Salin ayat ini dengan tepat.",
-    target:"Kesatria menulis ayat dengan kemas.",
-    idx:2,
-    tip:"Semak huruf besar pada awal ayat, ejaan perkataan dan tanda noktah di akhir ayat.",
-    onSuccess:()=>{
-      addScore(100);
-      worldLevel=3;
-      endGame();
-    }
-  });
-}
-
-function findSecret(){
-  if(secretFound) return;
-  secretFound=true;
-  addScore(25);
-  showModal(`
-    <div class="eyebrow">Rahsia ditemui</div>
-    <div class="dialogue">Anda telah menemui gulungan rahsia. Pada gulungan ini tertulis pesanan daripada Piko: “Penulis yang teliti sentiasa memerhati setiap huruf.”</div>
-    <p>Bonus pemerhatian: <b>+25 mata</b>.</p>
-    <button class="btn gold" id="secretClose">Simpan gulungan</button>
-  `);
-  $("secretClose").onclick=closeModal;
-}
-
-function endGame(){
-  finished=true;
-  paused=true;
-  const branch = choice==="evidence"
-    ? "Oleh sebab anda memilih untuk menyemak bukti terlebih dahulu, Arunika memuji sikap teliti anda dan menjemput anda menjaga perpustakaan istana."
-    : "Oleh sebab anda terus membantu Arunika, naga itu berjanji untuk melindungi laluan ke kampung dan menjadi sahabat anda."
-  $("endingText").textContent = `Kabus Dakwat lenyap apabila ayat terakhir berjaya dipulihkan. ${branch} Kini semua papan tanda, buku dan dinding tulisan di Kerajaan Aksara kembali jelas dan berwarna.`;
-  $("finalScore").textContent = `${score} mata`;
-  finish.style.display="flex";
-}
-
-function interact(){
-  if(!started || paused || modalOpen || finished) return;
-  const near=(o,d=1.8)=>Math.hypot(player.x-o.x,player.z-o.z)<d;
-  if(!secretFound && mission>=2 && near(npcs.secret,1.5)){ findSecret(); return; }
-  if(mission===1 && near(npcs.piko)){ meetPiko(); return; }
-  if(mission===2){
-    if(substage===0 && near(npcs.dragon,2.1)){ dragonChoice(); return; }
-    if(substage===1 && near(npcs.tablet,1.8)){ tabletInteraction(); return; }
-    if(substage===2 && near(npcs.dragon,2.1)){ dragonWriting(); return; }
+function task2(){
+ writingTask({
+  speaker:"Arunika · Naga Penjaga",
+  dialog:choice==="evidence"?"Anda telah membaca petunjuk dengan teliti. Sekarang, tulis semula ayat pada batu kunci.":"Bantu saya menulis semula ayat pada batu kunci.",
+  title:"Latihan 2 · Salin ayat tunggal",
+  instruction:"Salin ayat lengkap. Perhatikan huruf besar di awal ayat dan tanda noktah.",
+  target:"Naga menjaga jambatan.",
+  chips:["Naga","menjaga","jambatan."],
+  hint:"Ayat bermula dengan huruf besar N dan berakhir dengan tanda noktah.",
+  index:1,
+  success(){
+    addScore(100);world=2;mission=3;sub=0;
+    setMission("Pergi ke Menara Dakwat.","Ikut cahaya ungu. Tekan <b>E</b> di pintu menara.");
+    toast("Hebat! Ayat tunggal berjaya ditulis. +100 mata");
   }
-  if(mission===3 && near(npcs.tower,2.2)){ towerWriting(); return; }
+ });
 }
-
-function resetGame(){
-  score=0; mission=1; substage=0; choice=null; secretFound=false; wrongCounts=[0,0,0]; worldLevel=0;
-  Object.assign(player,{x:0,y:.7,z:-10,yaw:0,vy:0,onGround:true});
-  scoreEl.textContent="0";
-  paused=false; modalOpen=false; finished=false;
-  finish.style.display="none"; modal.style.display="none";
-  $("pauseBtn").textContent="Jeda";
-  setMission("Misi 1 · Papan tanda hutan","Cari Piko dan bantu memulihkan frasa pada papan tanda.","Bergerak ke arah cahaya jingga. Apabila hampir, tekan <b>E</b>.");
+function task3(){
+ writingTask({
+  speaker:"Pena Cahaya · Menara Dakwat",
+  dialog:"Untuk menghapuskan Kabus Dakwat, lengkapkan latihan terakhir dengan menyalin ayat ini secara tepat.",
+  title:"Latihan 3 · Ayat tunggal lengkap",
+  instruction:"Baca perlahan-lahan. Salin satu perkataan demi satu perkataan. Semak semula sebelum menekan butang Semak tulisan.",
+  target:"Kesatria menulis ayat dengan kemas.",
+  chips:["Kesatria","menulis","ayat","dengan","kemas."],
+  hint:"Terdapat lima perkataan. Ayat bermula dengan “Kesatria” dan berakhir dengan “kemas.”",
+  index:2,
+  success(){
+    addScore(100);world=3;finishGame();
+  }
+ });
 }
-
-$("startBtn").onclick=()=>{ started=true; $("startScreen").style.display="none"; toast("Permainan bermula. Cari Piko terlebih dahulu."); };
-$("pauseBtn").onclick=()=>{ if(!started || finished) return; paused=!paused; $("pauseBtn").textContent=paused?"Sambung":"Jeda"; toast(paused?"Permainan dijeda.":"Permainan disambung."); };
-$("restartBtn").onclick=()=>{ if(confirm("Adakah anda mahu memulakan semula permainan dari awal?")) resetGame(); };
-$("replayBtn").onclick=()=>{ resetGame(); finish.style.display="none"; };
-$("helpBtn").onclick=()=>{ if(!started) return; $("helpScreen").style.display="flex"; paused=true; };
-$("closeHelp").onclick=()=>{ $("helpScreen").style.display="none"; paused=false; };
+function secretTask(){
+ if(secret)return;
+ secret=true;addScore(25);
+ openModal(`
+  <div class="eyebrow">Gulungan Rahsia</div>
+  <div class="dialog">Anda menjumpai pesanan: “Penulis yang cermat membaca semula tulisannya.”</div>
+  <p>Bonus pemerhatian: <b>+25 mata</b>.</p>
+  <button id="secretClose" class="btn gold">Simpan gulungan</button>
+ `);
+ $("secretClose").onclick=closeModal;
+}
+function finishGame(){
+ finished=true;paused=true;
+ const ending=choice==="evidence"
+  ?"Kerana anda memilih untuk membaca petunjuk dahulu, Arunika memuji sikap teliti anda. "
+  :"Kerana anda terus membantu Arunika, naga itu berjanji untuk menjaga perjalanan anda. ";
+ $("ending").textContent=ending+"Semua tulisan di Kerajaan Aksara kembali jelas. Anda berjaya menyelesaikan tiga latihan menulis daripada frasa pendek kepada ayat tunggal lengkap.";
+ $("finalScore").textContent=score+" mata";
+ $("finish").style.display="flex";
+}
+function interact(){
+ if(!started||paused||modalOpen||finished)return;
+ const near=(o,d=1.9)=>Math.hypot(player.x-o.x,player.z-o.z)<d;
+ if(mission>=2&&!secret&&near(targets.secret,1.6)){secretTask();return}
+ if(mission===1&&near(targets.piko,2)){task1();return}
+ if(mission===2){
+   if(sub===0&&near(targets.dragon,2.3)){dragonChoice();return}
+   if(sub===1&&near(targets.stone,2)){stoneTask();return}
+   if(sub===2&&near(targets.dragon,2.3)){task2();return}
+ }
+ if(mission===3&&near(targets.tower,2.6)){task3();return}
+}
+function reset(){
+ score=0;mission=1;sub=0;choice=null;secret=false;wrong=[0,0,0];world=0;
+ Object.assign(player,{x:0,y:.9,z:-11,yaw:0,vy:0,onGround:true});
+ $("score").textContent="0";paused=false;modalOpen=false;finished=false;
+ $("finish").style.display="none";$("modal").style.display="none";$("pauseBtn").textContent="Jeda";
+ setMission("Cari Piko di taman istana.","Ikut cahaya jingga. Apabila hampir, tekan <b>E</b> untuk berinteraksi.");
+}
+$("startBtn").onclick=()=>{started=true;$("start").style.display="none";toast("Cari Piko untuk memulakan latihan menulis.")};
+$("helpBtn").onclick=()=>{if(!started)return;$("help").style.display="flex";paused=true};
+$("closeHelp").onclick=()=>{$("help").style.display="none";paused=false};
+$("pauseBtn").onclick=()=>{if(!started||finished)return;paused=!paused;$("pauseBtn").textContent=paused?"Sambung":"Jeda"};
+$("restartBtn").onclick=()=>{if(confirm("Mulakan semula permainan dari awal?"))reset()};
+$("replayBtn").onclick=()=>{reset();$("finish").style.display="none"};
 $("downloadBtn").onclick=()=>{
-  const record = [
-    "REKOD PERMAINAN — LEGENDA PENA NAGA",
-    "Fokus: SK 3.1 Asas Menulis; SP 3.1.1 Menulis secara mekanis frasa dan ayat tunggal",
-    `Markah: ${score}`,
-    `Kesalahan cubaan Misi 1: ${wrongCounts[0]}`,
-    `Kesalahan cubaan Misi 2: ${wrongCounts[1]}`,
-    `Kesalahan cubaan Misi 3: ${wrongCounts[2]}`,
-    `Pilihan laluan: ${choice==="evidence" ? "Menyemak bukti terlebih dahulu" : "Terus membantu Arunika"}`,
-    `Rahsia ditemui: ${secretFound ? "Ya" : "Tidak"}`,
-    "",
-    "Catatan: Markah permainan ialah ganjaran motivasi dan bukan Tahap Penguasaan."
-  ].join("\n");
-  const blob = new Blob([record], {type:"text/plain;charset=utf-8"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "rekod-legenda-pena-naga.txt";
-  a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+ const lines=[
+  "REKOD PERMAINAN — LEGENDA PENA NAGA",
+  "SK 3.1 Asas Menulis",
+  "SP 3.1.1 Menulis secara mekanis frasa dan ayat tunggal",
+  `Markah: ${score}`,
+  `Kesalahan Misi 1: ${wrong[0]}`,
+  `Kesalahan Misi 2: ${wrong[1]}`,
+  `Kesalahan Misi 3: ${wrong[2]}`,
+  `Pilihan laluan: ${choice==="evidence"?"Membaca petunjuk dahulu":"Membantu Arunika terus"}`,
+  `Gulungan rahsia: ${secret?"Ditemui":"Tidak ditemui"}`,
+  "",
+  "Catatan: Markah permainan ialah ganjaran motivasi, bukan Tahap Penguasaan."
+ ].join("\n");
+ const blob=new Blob([lines],{type:"text/plain;charset=utf-8"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="rekod-legenda-pena-naga.txt";a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 };
 
 window.addEventListener("keydown",e=>{
-  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key)) e.preventDefault();
-  if(e.key==="w" || e.key==="ArrowUp") keys.forward=true;
-  if(e.key==="s" || e.key==="ArrowDown") keys.back=true;
-  if(e.key==="a" || e.key==="ArrowLeft") keys.left=true;
-  if(e.key==="d" || e.key==="ArrowRight") keys.right=true;
-  if(e.key==="Shift") keys.run=true;
-  if(e.key===" " && player.onGround && !modalOpen){ player.vy=4.6; player.onGround=false; }
-  if((e.key==="e" || e.key==="E") && !e.repeat) interact();
-  if(e.key==="Escape" && started && !modalOpen && !finished){ paused=!paused; $("pauseBtn").textContent=paused?"Sambung":"Jeda"; }
+ if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault();
+ if(e.key==="w"||e.key==="ArrowUp")keys.forward=true;
+ if(e.key==="s"||e.key==="ArrowDown")keys.back=true;
+ if(e.key==="a"||e.key==="ArrowLeft")keys.left=true;
+ if(e.key==="d"||e.key==="ArrowRight")keys.right=true;
+ if(e.key===" "&&player.onGround&&!modalOpen){player.vy=4.8;player.onGround=false}
+ if((e.key==="e"||e.key==="E")&&!e.repeat)interact();
 });
 window.addEventListener("keyup",e=>{
-  if(e.key==="w" || e.key==="ArrowUp") keys.forward=false;
-  if(e.key==="s" || e.key==="ArrowDown") keys.back=false;
-  if(e.key==="a" || e.key==="ArrowLeft") keys.left=false;
-  if(e.key==="d" || e.key==="ArrowRight") keys.right=false;
-  if(e.key==="Shift") keys.run=false;
+ if(e.key==="w"||e.key==="ArrowUp")keys.forward=false;
+ if(e.key==="s"||e.key==="ArrowDown")keys.back=false;
+ if(e.key==="a"||e.key==="ArrowLeft")keys.left=false;
+ if(e.key==="d"||e.key==="ArrowRight")keys.right=false;
 });
-
 document.querySelectorAll(".touchBtn").forEach(btn=>{
-  const k = btn.dataset.key;
-  const down = e => {
-    e.preventDefault();
-    if(k==="interact"){ interact(); return; }
-    if(k==="jump"){ if(player.onGround && !modalOpen){ player.vy=4.6; player.onGround=false; } return; }
-    keys[k]=true;
-  };
-  const up = e => { e.preventDefault(); if(k in keys) keys[k]=false; };
-  btn.addEventListener("pointerdown", down);
-  btn.addEventListener("pointerup", up);
-  btn.addEventListener("pointercancel", up);
-  btn.addEventListener("pointerleave", up);
+ const k=btn.dataset.key;
+ const down=e=>{
+  e.preventDefault();
+  if(k==="interact"){interact();return}
+  if(k==="jump"){if(player.onGround&&!modalOpen){player.vy=4.8;player.onGround=false}return}
+  keys[k]=true;
+ };
+ const up=e=>{e.preventDefault();if(k in keys)keys[k]=false};
+ btn.addEventListener("pointerdown",down);btn.addEventListener("pointerup",up);
+ btn.addEventListener("pointercancel",up);btn.addEventListener("pointerleave",up);
 });
 
-const vs = `
-attribute vec3 aPos; attribute vec3 aNormal;
-uniform mat4 uModel,uView,uProj;
-uniform vec3 uColor;
-varying vec3 vColor; varying float vLight;
+/* ---------- Lightweight native WebGL renderer ---------- */
+const VS=`
+attribute vec3 aP;attribute vec3 aN;
+uniform mat4 uM,uV,uPj;uniform vec3 uC;
+varying vec3 vC;varying float vL;varying float vFog;
 void main(){
-  vec3 n = normalize(mat3(uModel) * aNormal);
-  vec3 lightDir = normalize(vec3(.45,.95,.25));
-  vLight = .45 + max(dot(n, lightDir), 0.0) * .55;
-  vColor = uColor;
-  gl_Position = uProj * uView * uModel * vec4(aPos,1.0);
+ vec4 wp=uM*vec4(aP,1.0);
+ vec3 n=normalize(mat3(uM)*aN);
+ vec3 l=normalize(vec3(-.35,.85,.45));
+ vL=.34+max(dot(n,l),0.0)*.66;
+ vC=uC;
+ vFog=clamp((length(wp.xyz)-8.0)/28.0,0.0,1.0);
+ gl_Position=uPj*uV*wp;
 }`;
-const fs = `
+const FS=`
 precision mediump float;
-varying vec3 vColor; varying float vLight;
-void main(){ gl_FragColor = vec4(vColor * vLight, 1.0); }`;
+varying vec3 vC;varying float vL;varying float vFog;
+void main(){
+ vec3 lit=vC*vL;
+ vec3 fog=vec3(.60,.72,.78);
+ gl_FragColor=vec4(mix(lit,fog,vFog*.33),1.0);
+}`;
+function sh(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(s);return s}
+const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);
+const aP=gl.getAttribLocation(pr,"aP"),aN=gl.getAttribLocation(pr,"aN");
+const uM=gl.getUniformLocation(pr,"uM"),uV=gl.getUniformLocation(pr,"uV"),uPj=gl.getUniformLocation(pr,"uPj"),uC=gl.getUniformLocation(pr,"uC");
 
-function shader(type,src){
-  const s = gl.createShader(type);
-  gl.shaderSource(s,src);
-  gl.compileShader(s);
-  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(s);
-  return s;
+function mesh(vertices,indices){
+ const data=[];
+ for(const v of vertices)data.push(v[0],v[1],v[2],v[3],v[4],v[5]);
+ const vb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW);
+ const ib=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(indices),gl.STATIC_DRAW);
+ return{vb,ib,count:indices.length};
 }
-const prog = gl.createProgram();
-gl.attachShader(prog, shader(gl.VERTEX_SHADER,vs));
-gl.attachShader(prog, shader(gl.FRAGMENT_SHADER,fs));
-gl.linkProgram(prog);
-gl.useProgram(prog);
+function boxMesh(){
+ const p=[[-.5,-.5,.5],[.5,-.5,.5],[.5,.5,.5],[-.5,.5,.5],[-.5,-.5,-.5],[.5,-.5,-.5],[.5,.5,-.5],[-.5,.5,-.5]];
+ const faces=[[0,1,2,3,0,0,1],[5,4,7,6,0,0,-1],[4,0,3,7,-1,0,0],[1,5,6,2,1,0,0],[3,2,6,7,0,1,0],[4,5,1,0,0,-1,0]];
+ const vs=[],ix=[];let k=0;
+ for(const f of faces){const ids=f.slice(0,4),n=f.slice(4);for(const id of ids)vs.push([...p[id],...n]);ix.push(k,k+1,k+2,k,k+2,k+3);k+=4}
+ return mesh(vs,ix);
+}
+function sphereMesh(seg=14,rings=10){
+ const vs=[],ix=[];
+ for(let y=0;y<=rings;y++){
+  const v=y/rings,phi=v*Math.PI;
+  for(let x=0;x<=seg;x++){
+   const u=x/seg,th=u*Math.PI*2;
+   const sx=Math.sin(phi)*Math.cos(th),sy=Math.cos(phi),sz=Math.sin(phi)*Math.sin(th);
+   vs.push([sx*.5,sy*.5,sz*.5,sx,sy,sz]);
+  }
+ }
+ for(let y=0;y<rings;y++)for(let x=0;x<seg;x++){
+  const a=y*(seg+1)+x,b=a+seg+1;ix.push(a,b,a+1,b,b+1,a+1)
+ }
+ return mesh(vs,ix);
+}
+function cylMesh(seg=14,top=.5,bottom=.5){
+ const vs=[],ix=[];
+ for(let i=0;i<=seg;i++){
+  const a=i/seg*Math.PI*2,c=Math.cos(a),s=Math.sin(a);
+  vs.push([bottom*c,-.5,bottom*s,c,0,s],[top*c,.5,top*s,c,0,s]);
+ }
+ for(let i=0;i<seg;i++){let a=i*2;ix.push(a,a+1,a+2,a+1,a+3,a+2)}
+ const base=vs.length;vs.push([0,-.5,0,0,-1,0],[0,.5,0,0,1,0]);
+ for(let i=0;i<=seg;i++){const a=i/seg*Math.PI*2,c=Math.cos(a),s=Math.sin(a);vs.push([bottom*c,-.5,bottom*s,0,-1,0],[top*c,.5,top*s,0,1,0])}
+ for(let i=0;i<seg;i++){let j=base+2+i*2;ix.push(base,j+2,j);ix.push(base+1,j+1,j+3)}
+ return mesh(vs,ix);
+}
+const MBOX=boxMesh(),MSPH=sphereMesh(),MCYL=cylMesh(),MCONE=cylMesh(14,0,.5);
 
-const cube = [
- -0.5,-0.5, 0.5, 0,0,1,  0.5,-0.5, 0.5,0,0,1,  0.5,0.5,0.5,0,0,1,
- -0.5,-0.5, 0.5, 0,0,1,  0.5,0.5,0.5,0,0,1, -0.5,0.5,0.5,0,0,1,
-  0.5,-0.5,-0.5, 0,0,-1, -0.5,-0.5,-0.5,0,0,-1, -0.5,0.5,-0.5,0,0,-1,
-  0.5,-0.5,-0.5, 0,0,-1, -0.5,0.5,-0.5,0,0,-1,  0.5,0.5,-0.5,0,0,-1,
- -0.5,-0.5,-0.5,-1,0,0, -0.5,-0.5, 0.5,-1,0,0, -0.5,0.5, 0.5,-1,0,0,
- -0.5,-0.5,-0.5,-1,0,0, -0.5,0.5, 0.5,-1,0,0, -0.5,0.5,-0.5,-1,0,0,
-  0.5,-0.5, 0.5,1,0,0,  0.5,-0.5,-0.5,1,0,0,  0.5,0.5,-0.5,1,0,0,
-  0.5,-0.5, 0.5,1,0,0,  0.5,0.5,-0.5,1,0,0,  0.5,0.5, 0.5,1,0,0,
- -0.5,0.5, 0.5,0,1,0,  0.5,0.5, 0.5,0,1,0,  0.5,0.5,-0.5,0,1,0,
- -0.5,0.5, 0.5,0,1,0,  0.5,0.5,-0.5,0,1,0, -0.5,0.5,-0.5,0,1,0,
- -0.5,-0.5,-0.5,0,-1,0, 0.5,-0.5,-0.5,0,-1,0, 0.5,-0.5, 0.5,0,-1,0,
- -0.5,-0.5,-0.5,0,-1,0, 0.5,-0.5, 0.5,0,-1,0,-0.5,-0.5, 0.5,0,-1,0
-];
-const buf = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube), gl.STATIC_DRAW);
-const aPos = gl.getAttribLocation(prog,"aPos");
-const aNormal = gl.getAttribLocation(prog,"aNormal");
-gl.enableVertexAttribArray(aPos);
-gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,24,0);
-gl.enableVertexAttribArray(aNormal);
-gl.vertexAttribPointer(aNormal,3,gl.FLOAT,false,24,12);
-const uModel=gl.getUniformLocation(prog,"uModel");
-const uView=gl.getUniformLocation(prog,"uView");
-const uProj=gl.getUniformLocation(prog,"uProj");
-const uColor=gl.getUniformLocation(prog,"uColor");
-
-function ident(){ return [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]; }
-function mul(a,b){
-  const o = new Array(16).fill(0);
-  for(let c=0;c<4;c++) for(let r=0;r<4;r++) for(let k=0;k<4;k++) o[c*4+r]+=a[k*4+r]*b[c*4+k];
-  return o;
-}
-function trans(x,y,z){ const m=ident(); m[12]=x; m[13]=y; m[14]=z; return m; }
-function scale(x,y,z){ const m=ident(); m[0]=x; m[5]=y; m[10]=z; return m; }
-function rotY(a){ const c=Math.cos(a), s=Math.sin(a), m=ident(); m[0]=c; m[2]=-s; m[8]=s; m[10]=c; return m; }
-function perspective(fov,asp,n,f){
-  const t=1/Math.tan(fov/2), m=new Array(16).fill(0);
-  m[0]=t/asp; m[5]=t; m[10]=(f+n)/(n-f); m[11]=-1; m[14]=2*f*n/(n-f);
-  return m;
-}
-function norm(v){ const l=Math.hypot(...v)||1; return v.map(x=>x/l); }
-function cross(a,b){ return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
-function lookAt(e,t,up){
-  const z=norm([e[0]-t[0], e[1]-t[1], e[2]-t[2]]);
-  const x=norm(cross(up,z));
-  const y=cross(z,x);
-  return [x[0],y[0],z[0],0, x[1],y[1],z[1],0, x[2],y[2],z[2],0, -(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]), -(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]), -(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]), 1];
-}
-function drawCube(x,y,z,sx,sy,sz,color,ry=0){
-  const m = mul(trans(x,y,z), mul(rotY(ry), scale(sx,sy,sz)));
-  gl.uniformMatrix4fv(uModel,false,new Float32Array(m));
-  gl.uniform3fv(uColor,new Float32Array(color));
-  gl.drawArrays(gl.TRIANGLES,0,36);
+function I(){return[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]}
+function MM(a,b){const o=new Array(16).fill(0);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)o[c*4+r]+=a[k*4+r]*b[c*4+k];return o}
+function T(x,y,z){const m=I();m[12]=x;m[13]=y;m[14]=z;return m}
+function S(x,y,z){const m=I();m[0]=x;m[5]=y;m[10]=z;return m}
+function RY(a){const c=Math.cos(a),s=Math.sin(a),m=I();m[0]=c;m[2]=-s;m[8]=s;m[10]=c;return m}
+function RX(a){const c=Math.cos(a),s=Math.sin(a),m=I();m[5]=c;m[6]=s;m[9]=-s;m[10]=c;return m}
+function persp(fov,asp,n,f){const q=1/Math.tan(fov/2),m=new Array(16).fill(0);m[0]=q/asp;m[5]=q;m[10]=(f+n)/(n-f);m[11]=-1;m[14]=2*f*n/(n-f);return m}
+function norm(v){const l=Math.hypot(...v)||1;return v.map(x=>x/l)}
+function cross(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}
+function look(e,t,up){const z=norm([e[0]-t[0],e[1]-t[1],e[2]-t[2]]),x=norm(cross(up,z)),y=cross(z,x);return[x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-(x[0]*e[0]+x[1]*e[1]+x[2]*e[2]),-(y[0]*e[0]+y[1]*e[1]+y[2]*e[2]),-(z[0]*e[0]+z[1]*e[1]+z[2]*e[2]),1]}
+function draw(m,x,y,z,sx,sy,sz,c,ry=0,rx=0){
+ gl.bindBuffer(gl.ARRAY_BUFFER,m.vb);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,m.ib);
+ gl.enableVertexAttribArray(aP);gl.vertexAttribPointer(aP,3,gl.FLOAT,false,24,0);
+ gl.enableVertexAttribArray(aN);gl.vertexAttribPointer(aN,3,gl.FLOAT,false,24,12);
+ const mat=MM(T(x,y,z),MM(RY(ry),MM(RX(rx),S(sx,sy,sz))));
+ gl.uniformMatrix4fv(uM,false,new Float32Array(mat));gl.uniform3fv(uC,new Float32Array(c));
+ gl.drawElements(gl.TRIANGLES,m.count,gl.UNSIGNED_SHORT,0);
 }
 function resize(){
-  const dpr=Math.min(devicePixelRatio||1,1.6);
-  const w=Math.floor(innerWidth*dpr), h=Math.floor(innerHeight*dpr);
-  if(canvas.width!==w || canvas.height!==h){
-    canvas.width=w; canvas.height=h; gl.viewport(0,0,w,h);
-  }
+ const d=Math.min(devicePixelRatio||1,1.5),w=Math.floor(innerWidth*d),h=Math.floor(innerHeight*d);
+ if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}
 }
-
-function levelGrassA(){ return worldLevel===0?[.28,.39,.27]:worldLevel===1?[.35,.55,.28]:worldLevel===2?[.38,.62,.31]:[.42,.70,.35]; }
-function levelGrassB(){ return worldLevel===0?[.24,.34,.22]:worldLevel===1?[.31,.49,.25]:worldLevel===2?[.34,.56,.27]:[.37,.63,.30]; }
-function drawPixelGround(){
-  for(let x=-11;x<=11;x++){
-    for(let z=-11;z<=11;z++){
-      const c=((x+z)&1)===0 ? levelGrassA() : levelGrassB();
-      drawCube(x,-.2,z,1.02,.22,1.02,c);
-      if((x===0 || x===1 || x===-1) && z>-10 && z<10){
-        const path=((x+z)&1)===0 ? [.67,.56,.36] : [.58,.47,.28];
-        drawCube(x,-.09,z,1.02,.05,1.02,path);
-      }
-    }
-  }
+function groundColor(){return world===0?[.22,.32,.22]:world===1?[.25,.43,.23]:world===2?[.29,.52,.27]:[.33,.60,.30]}
+function tree(x,z,s=1){
+ draw(MCYL,x,.8,z,.38*s,1.6*s,.38*s,[.34,.20,.10]);
+ draw(MSPH,x,2.0*s,z,2.0*s,1.5*s,2.0*s,[.18+.03*world,.38+.04*world,.16]);
+ draw(MSPH,x-.7*s,1.85*s,z+.15*s,1.25*s,1.05*s,1.25*s,[.22+.03*world,.46+.04*world,.18]);
+ draw(MSPH,x+.7*s,1.9*s,z-.1*s,1.25*s,1.08*s,1.25*s,[.20+.03*world,.43+.04*world,.17]);
 }
-function drawFlowers(){
-  const pts=[[-4,-6],[4,-6],[-6,1],[-3,7],[6,6],[8,-1],[-8,4]];
-  pts.forEach((p,i)=>{
-    const [x,z]=p;
-    drawCube(x,.05,z,.12,.22,.12,[.22,.62,.22]);
-    const cols=[[1,.45,.55],[.95,.85,.3],[.66,.79,1],[1,.62,.28]];
-    const c=cols[i%cols.length];
-    drawCube(x,.25,z,.22,.12,.22,c);
-  });
+function rock(x,z,s=.8){
+ draw(MSPH,x,.24*s,z,1.1*s,.7*s,.9*s,[.38,.40,.42],.3);
 }
-function drawTree(x,z,tone=0){
-  const leafBase = [
-    [.34,.56,.20],[.30,.50,.18],[.28,.44,.16],[.40,.62,.22]
-  ][tone%4];
-  drawCube(x,.55,z,.36,1.1,.36,[.49,.30,.16]);
-  drawCube(x,1.4,z,1.25,.9,1.25,leafBase);
-  drawCube(x-.45,1.8,z,.72,.55,.72,[leafBase[0]+.08,leafBase[1]+.05,leafBase[2]+.04]);
-  drawCube(x+.45,1.8,z,.72,.55,.72,[leafBase[0]+.05,leafBase[1]+.02,leafBase[2]+.03]);
-  drawCube(x,2.15,z,.82,.5,.82,[leafBase[0]+.12,leafBase[1]+.08,leafBase[2]+.05]);
+function grass(x,z,s=1){
+ for(let i=0;i<3;i++)draw(MCONE,x+(i-1)*.11*s,.18,z,.08*s,.40*s,.08*s,[.22,.48,.18],(i-1)*.35);
 }
-function drawHouse(x,z,body,roof,door){
-  drawCube(x,.95,z,2.4,1.9,2.2,body);
-  drawCube(x,2.25,z,2.7,.35,2.5,roof);
-  drawCube(x,2.75,z,2.1,.45,1.9,roof.map(v=>Math.min(1,v+.08)));
-  drawCube(x,.55,z+1.12,.55,1.1,.18,door);
-  drawCube(x-.85,1.05,z+1.12,.45,.45,.12,[.74,.92,1]);
-  drawCube(x+.85,1.05,z+1.12,.45,.45,.12,[.74,.92,1]);
-  drawCube(x-1.45,.65,z+1.2,.25,.65,.25,[.44,.26,.16]);
-  drawCube(x+1.45,.65,z+1.2,.25,.65,.25,[.44,.26,.16]);
-  drawCube(x-1.45,1.25,z+1.2,.55,.45,.55,[.30,.65,.26]);
-  drawCube(x+1.45,1.25,z+1.2,.55,.45,.55,[.30,.65,.26]);
+function house(x,z){
+ draw(MBOX,x,1.05,z,3.2,2.1,2.6,[.70,.59,.45]);
+ draw(MCONE,x,2.55,z,3.8,1.8,3.1,[.42,.18,.12],0,0);
+ draw(MBOX,x,2.15,z,3.45,.25,2.85,[.48,.22,.14]);
+ draw(MBOX,x,.65,z+1.33,.62,1.3,.18,[.34,.20,.12]);
+ draw(MBOX,x-1.0,1.15,z+1.33,.55,.62,.12,[.63,.82,.92]);
+ draw(MBOX,x+1.0,1.15,z+1.33,.55,.62,.12,[.63,.82,.92]);
 }
-function drawFence(){
-  for(let i=-7;i<=7;i+=1.5){
-    drawCube(-2.8,.32,i,.12,.65,.12,[.55,.43,.27]);
-    drawCube(2.8,.32,i,.12,.65,.12,[.55,.43,.27]);
-  }
-  for(let i=-7;i<=7;i+=3){
-    drawCube(-2.8,.55,i, .15,.1,1.55,[.69,.55,.36]);
-    drawCube(2.8,.55,i, .15,.1,1.55,[.69,.55,.36]);
-  }
+function castleTower(x,z){
+ draw(MCYL,x,2.2,z,3.1,4.4,3.1,[.48,.49,.51]);
+ draw(MCYL,x,4.55,z,3.45,.55,3.45,[.39,.40,.44]);
+ for(let i=0;i<8;i++){const a=i/8*Math.PI*2;draw(MBOX,x+Math.cos(a)*1.45,5.0,z+Math.sin(a)*1.45,.42,.85,.42,[.38,.39,.43])}
+ draw(MBOX,x,.9,z+1.58,.85,1.8,.18,[.22,.15,.11]);
 }
-function drawBridge(){
-  for(let i=0;i<8;i++){
-    const z=-0.3 + i*.48;
-    const c=i%2===0?[.60,.43,.23]:[.54,.37,.20];
-    drawCube(4.4,.08,z,2.8,.16,.42,c);
-  }
-  drawCube(3.05,.55,.8,.12,.9,2.2,[.63,.49,.31]);
-  drawCube(5.75,.55,.8,.12,.9,2.2,[.63,.49,.31]);
+function knight(){
+ const x=player.x,z=player.z,y=player.y,a=player.yaw;
+ draw(MCYL,x,y+.72,z,.76,1.25,.76,[.20,.30,.42],a);
+ draw(MSPH,x,y+1.55,z,.72,.72,.72,[.82,.68,.55],a);
+ draw(MSPH,x,y+1.72,z,.82,.48,.82,[.45,.48,.53],a);
+ draw(MBOX,x,y+1.68,z+.31,.82,.18,.42,[.38,.41,.47],a);
+ draw(MCYL,x-.45,y+.78,z,.18,.85,.18,[.78,.65,.54],a);
+ draw(MCYL,x+.45,y+.78,z,.18,.85,.18,[.78,.65,.54],a);
+ draw(MCYL,x-.22,y+.05,z,.22,.75,.22,[.18,.22,.26],a);
+ draw(MCYL,x+.22,y+.05,z,.22,.75,.22,[.18,.22,.26],a);
+ draw(MBOX,x+.62*Math.cos(a),y+.65,z-.62*Math.sin(a),.10,1.55,.10,[.75,.77,.80],-a);
+ draw(MCONE,x+.62*Math.cos(a),y+1.48,z-.62*Math.sin(a),.18,.35,.18,[.75,.77,.80],-a);
 }
-function drawSigns(){
-  drawCube(-5.2,.6,-3.45,.12,1.2,.12,[.44,.28,.16]);
-  drawCube(-5.2,1.35,-3.45,1.35,.65,.12,worldLevel>=1?[.92,.88,.70]:[.50,.48,.44]);
-  drawCube(5.8,.7,1.7,.12,1.4,.12,[.44,.28,.16]);
-  drawCube(5.8,1.6,1.7,1.8,.75,.12,worldLevel>=2?[.92,.88,.70]:[.50,.48,.44]);
-  drawCube(0,1.5,7.85,.12,1.8,.12,[.44,.28,.16]);
-  drawCube(0,2.6,7.85,2.2,.9,.12,worldLevel>=3?[.92,.88,.70]:[.50,.48,.44]);
+function piko(){
+ const{x,z}=targets.piko;
+ draw(MSPH,x,1.25,z,.85,1.05,.85,[.92,.40,.08]);
+ draw(MSPH,x,1.98,z,.55,.55,.55,[1,.67,.12]);
+ draw(MCONE,x-.68,1.42,z,1.0,.25,1.6,[.95,.53,.08],-.25,.9);
+ draw(MCONE,x+.68,1.42,z,1.0,.25,1.6,[.95,.53,.08],.25,-.9);
+ draw(MCONE,x,1.02,z-.5,.28,1.2,.28,[1,.72,.12],0,.8);
 }
-function drawKnight(){
-  const y=player.y, yaw=player.yaw;
-  drawCube(player.x,y+.62,player.z,.75,1.05,.75,[.43,.58,.83],yaw); // badan
-  drawCube(player.x,y+1.35,player.z,.62,.54,.62,[.96,.84,.66],yaw); // muka
-  drawCube(player.x,y+1.72,player.z,.74,.24,.74,[.32,.44,.66],yaw); // topi
-  drawCube(player.x,y+.12,player.z-.12,.22,.55,.22,[.25,.28,.33],yaw);
-  drawCube(player.x,y+.12,player.z+.12,.22,.55,.22,[.25,.28,.33],yaw);
-  drawCube(player.x-.42,y+.62,player.z,.18,.72,.18,[.96,.84,.66],yaw);
-  drawCube(player.x+.42,y+.62,player.z,.18,.72,.18,[.96,.84,.66],yaw);
-  drawCube(player.x+.55*Math.cos(yaw),y+.7,player.z-.55*Math.sin(yaw),.14,1.05,.14,[.90,.90,.95],-yaw); // pena/pedang
+function dragon(){
+ const{x,z}=targets.dragon;
+ draw(MSPH,x,1.25,z,2.35,1.45,3.0,[.46,.18,.15]);
+ draw(MSPH,x,2.05,z+1.55,1.35,1.15,1.25,[.55,.20,.16]);
+ draw(MCONE,x,2.25,z+2.35,.5,.8,.5,[.45,.15,.12],0,1.1);
+ draw(MCONE,x-.55,2.9,z+1.15,.32,.85,.32,[.72,.64,.42],0,.2);
+ draw(MCONE,x+.55,2.9,z+1.15,.32,.85,.32,[.72,.64,.42],0,.2);
+ draw(MCONE,x-1.7,2.0,z,.2,2.8,1.8,[.38,.13,.12],-.45,.65);
+ draw(MCONE,x+1.7,2.0,z,.2,2.8,1.8,[.38,.13,.12],.45,-.65);
+ draw(MCONE,x,.9,z-2.1,.35,3.1,.35,[.43,.15,.13],0,1.5);
 }
-function drawPiko(){
-  const x=npcs.piko.x,z=npcs.piko.z;
-  drawCube(x,1.0,z,.58,.78,.58,[.98,.54,.16]);
-  drawCube(x,1.55,z,.42,.42,.42,[1,.75,.20]);
-  drawCube(x-.45,1.08,z,.52,.12,.85,[.96,.66,.18],-.3);
-  drawCube(x+.45,1.08,z,.52,.12,.85,[.96,.66,.18],.3);
-  drawCube(x,0.52,z-.14,.10,.40,.10,[.72,.42,.12]);
-  drawCube(x,0.52,z+.14,.10,.40,.10,[.72,.42,.12]);
+function stone(){
+ const{x,z}=targets.stone;
+ draw(MBOX,x,.9,z,1.2,1.8,.45,[.42,.48,.52]);
+ draw(MBOX,x,1.95,z,1.5,.35,.55,[.50,.56,.60]);
 }
-function drawDragon(){
-  const x=npcs.dragon.x,z=npcs.dragon.z;
-  drawCube(x,1.05,z,1.8,1.0,2.5,[.70,.24,.20]);
-  drawCube(x,1.72,z+1.05,1.15,.85,1.05,[.78,.28,.22]);
-  drawCube(x-.98,1.65,z,.18,.92,1.6,[.56,.17,.14],-.42);
-  drawCube(x+.98,1.65,z,.18,.92,1.6,[.56,.17,.14],.42);
-  drawCube(x,2.35,z+1.35,.25,.35,.25,[.95,.90,.70]);
-  drawCube(x-.22,2.45,z+1.45,.14,.25,.14,[.95,.90,.70]);
-  drawCube(x+.22,2.45,z+1.45,.14,.25,.14,[.95,.90,.70]);
-  drawCube(x-.25,1.88,z+1.6,.10,.10,.10,[1,1,1]);
-  drawCube(x+.25,1.88,z+1.6,.10,.10,.10,[1,1,1]);
+function beacon(x,z,c,h=2.8){draw(MCYL,x,h/2+.15,z,.09,h,.09,c)}
+function worldScene(){
+ draw(MBOX,0,-.25,0,26,.5,26,groundColor());
+ draw(MBOX,0,-.03,0,2.8,.08,23,[.56,.46,.33]);
+ draw(MBOX,4.0,-.01,1.0,5.5,.12,2.4,[.42,.30,.19]);
+ for(let i=-3;i<=3;i++)draw(MBOX,4+i*.72,.08,1.0,.62,.18,2.1,i%2?[.47,.34,.21]:[.55,.39,.23]);
+ house(-7.2,-8.1);house(6.8,-7.8);castleTower(targets.tower.x,targets.tower.z);
+ [[-9,-7,1.1],[-7,-2,.9],[-9,2,.9],[-7,7,1.0],[8,-6,.9],[9,-2,1.0],[7,5,.9],[4,8,.8],[-3,5,.8],[3,-4,.9]].forEach(v=>tree(...v));
+ [[-4,-7],[4,-6],[-6,1],[-4,7],[6,6],[8,2],[-8,4],[2,5]].forEach(v=>grass(...v));
+ [[-9,6,.8],[8,7,.7],[-5,-1,.55],[5,-4,.6]].forEach(v=>rock(...v));
+ piko();dragon();stone();knight();
+ draw(MSPH,targets.secret.x,.35,targets.secret.z,1.2,.65,1.0,[.35,.35,.38]);
+ if(mission===1)beacon(targets.piko.x,targets.piko.z,[1,.48,.08]);
+ if(mission===2&&sub===1)beacon(targets.stone.x,targets.stone.z,[.18,.60,1]);
+ else if(mission===2)beacon(targets.dragon.x,targets.dragon.z,[.95,.15,.12]);
+ if(mission===3)beacon(targets.tower.x,targets.tower.z,[.55,.25,.90],4.0);
+ if(mission>=2&&!secret)beacon(targets.secret.x,targets.secret.z,[.9,.75,.2],1.8);
 }
-function drawTablet(){
-  const x=npcs.tablet.x,z=npcs.tablet.z;
-  drawCube(x,.6,z,.25,1.2,.25,[.40,.33,.25]);
-  drawCube(x,1.45,z,1.0,1.7,.34,[.45,.58,.68]);
-}
-function drawTower(){
-  const x=npcs.tower.x,z=npcs.tower.z;
-  drawCube(x,2.0,z,2.9,4.0,2.9,[.48,.47,.58]);
-  drawCube(x,4.35,z,3.35,.45,3.35,[.35,.33,.46]);
-  drawCube(x-1.1,5.0,z-1.1,.55,.95,.55,[.38,.36,.50]);
-  drawCube(x+1.1,5.0,z-1.1,.55,.95,.55,[.38,.36,.50]);
-  drawCube(x-1.1,5.0,z+1.1,.55,.95,.55,[.38,.36,.50]);
-  drawCube(x+1.1,5.0,z+1.1,.55,.95,.55,[.38,.36,.50]);
-  drawCube(x,.95,z+1.48,.78,1.9,.20,[.25,.18,.14]);
-}
-function drawSecretStone(){
-  const x=npcs.secret.x,z=npcs.secret.z;
-  drawCube(x,.25,z,1.15,.5,.92,[.36,.36,.40]);
-  drawCube(x,.72,z,.45,.28,.45,[.90,.84,.55]);
-}
-function drawBeacons(){
-  if(mission===1) drawCube(npcs.piko.x,3.0,npcs.piko.z,.16,2.1,.16,[1,.58,.14]);
-  if(mission===2 && substage===1) drawCube(npcs.tablet.x,2.8,npcs.tablet.z,.16,2.2,.16,[.22,.68,1]);
-  if(mission===2 && substage!==1) drawCube(npcs.dragon.x,3.7,npcs.dragon.z,.18,2.3,.18,[1,.26,.18]);
-  if(mission===3) drawCube(npcs.tower.x,6.2,npcs.tower.z,.18,3.4,.18,[.72,.38,1]);
-  if(mission>=2 && !secretFound) drawCube(npcs.secret.x,1.5,npcs.secret.z,.12,1.2,.12,[.98,.88,.38]);
-}
-
-function drawWorld(){
-  drawPixelGround();
-  drawFlowers();
-  drawFence();
-  drawBridge();
-  drawSigns();
-
-  drawHouse(-6.8,-8,[.79,.67,.52],[.79,.33,.25],[.45,.28,.17]);
-  drawHouse(6.7,-7.5,[.75,.59,.39],[.34,.54,.80],[.44,.27,.16]);
-
-  drawTree(-8.5,-7,0); drawTree(-7,-2,1); drawTree(-8.1,2.2,2); drawTree(-7.1,7.9,3);
-  drawTree(7.8,-6.8,1); drawTree(8.4,-2.8,0); drawTree(7.4,3.8,2); drawTree(5.8,7.5,3);
-  drawTree(-2.9,4.2,1); drawTree(3.1,-4.5,2);
-
-  drawPiko(); drawDragon(); drawTablet(); drawTower(); drawSecretStone(); drawKnight(); drawBeacons();
-}
-
-let cam={x:0,y:4,z:-15};
 function update(dt){
-  if(!started || paused || modalOpen || finished) return;
-  const turn=2.35*dt;
-  if(keys.left) player.yaw += turn;
-  if(keys.right) player.yaw -= turn;
-  let dir=0; if(keys.forward) dir+=1; if(keys.back) dir-=1;
-  const sp=(keys.run?4.9:3.2)*dt*dir;
-  player.x += Math.sin(player.yaw) * sp;
-  player.z += Math.cos(player.yaw) * sp;
-  player.x = Math.max(-10.5, Math.min(10.5, player.x));
-  player.z = Math.max(-10.5, Math.min(10.5, player.z));
-  if(!player.onGround){
-    player.vy -= 9.8*dt;
-    player.y += player.vy*dt;
-    if(player.y<=.7){ player.y=.7; player.vy=0; player.onGround=true; }
-  }
+ if(!started||paused||modalOpen||finished)return;
+ const turn=2.15*dt;if(keys.left)player.yaw+=turn;if(keys.right)player.yaw-=turn;
+ let d=0;if(keys.forward)d++;if(keys.back)d--;
+ const s=3.2*dt*d;player.x+=Math.sin(player.yaw)*s;player.z+=Math.cos(player.yaw)*s;
+ player.x=Math.max(-11.5,Math.min(11.5,player.x));player.z=Math.max(-11.5,Math.min(11.5,player.z));
+ if(!player.onGround){player.vy-=9.8*dt;player.y+=player.vy*dt;if(player.y<=.9){player.y=.9;player.vy=0;player.onGround=true}}
 }
-function updatePrompt(){
-  if(!started || paused || modalOpen || finished){ promptEl.style.display="none"; return; }
-  const near=(o,d=1.8)=>Math.hypot(player.x-o.x,player.z-o.z)<d;
-  let show=false, msg="Tekan E untuk berinteraksi";
-  if(!secretFound && mission>=2 && near(npcs.secret,1.5)){ show=true; msg="Tekan E · Gulungan rahsia"; }
-  if(mission===1 && near(npcs.piko)){ show=true; msg="Tekan E · Bercakap dengan Piko"; }
-  if(mission===2 && substage===0 && near(npcs.dragon,2.1)){ show=true; msg="Tekan E · Bercakap dengan Arunika"; }
-  if(mission===2 && substage===1 && near(npcs.tablet,1.8)){ show=true; msg="Tekan E · Baca Batu Petunjuk"; }
-  if(mission===2 && substage===2 && near(npcs.dragon,2.1)){ show=true; msg="Tekan E · Kembali kepada Arunika"; }
-  if(mission===3 && near(npcs.tower,2.2)){ show=true; msg="Tekan E · Aktifkan Menara Dakwat"; }
-  promptEl.textContent=msg;
-  promptEl.style.display=show ? "block" : "none";
+function prompt(){
+ if(!started||paused||modalOpen||finished){$("interactPrompt").style.display="none";return}
+ const near=(o,d=1.9)=>Math.hypot(player.x-o.x,player.z-o.z)<d;
+ let s="";
+ if(mission>=2&&!secret&&near(targets.secret,1.6))s="Tekan E · Periksa gulungan";
+ if(mission===1&&near(targets.piko,2))s="Tekan E · Bercakap dengan Piko";
+ if(mission===2&&sub===0&&near(targets.dragon,2.3))s="Tekan E · Bercakap dengan Arunika";
+ if(mission===2&&sub===1&&near(targets.stone,2))s="Tekan E · Baca Batu Petunjuk";
+ if(mission===2&&sub===2&&near(targets.dragon,2.3))s="Tekan E · Kembali kepada Arunika";
+ if(mission===3&&near(targets.tower,2.6))s="Tekan E · Buka Buku Menulis";
+ $("interactPrompt").textContent=s;$("interactPrompt").style.display=s?"block":"none";
 }
-function drawMini(){
-  const c=$("mini"), ctx=c.getContext("2d"), W=c.width, H=c.height;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle="rgba(10,20,28,.94)";
-  ctx.fillRect(0,0,W,H);
-  const pt=(x,z)=>[(x+11)/22*W, (z+11)/22*H];
-  ctx.strokeStyle="rgba(255,255,255,.18)";
-  ctx.lineWidth=2;
-  ctx.strokeRect(8,8,W-16,H-16);
-
-  const markers=[];
-  if(mission===1) markers.push([npcs.piko,"#ffad42"]);
-  if(mission===2 && substage===1) markers.push([npcs.tablet,"#4aa8ff"]);
-  else if(mission===2) markers.push([npcs.dragon,"#ff5c48"]);
-  if(mission===3) markers.push([npcs.tower,"#b067ff"]);
-  if(mission>=2 && !secretFound) markers.push([npcs.secret,"#f0d962"]);
-  markers.forEach(([o,col])=>{
-    const [x,y]=pt(o.x,o.z);
-    ctx.fillStyle=col;
-    ctx.beginPath(); ctx.arc(x,y,7,0,Math.PI*2); ctx.fill();
-  });
-
-  const [px,py]=pt(player.x,player.z);
-  ctx.fillStyle="#ffffff";
-  ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle="#ffffff";
-  ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px+Math.sin(player.yaw)*18, py+Math.cos(player.yaw)*18); ctx.stroke();
-}
-
-let last=performance.now();
+let cam={x:0,y:4.6,z:-17},last=performance.now();
 function frame(t){
-  resize();
-  const dt=Math.min((t-last)/1000,.033);
-  last=t;
-  update(dt);
-
-  const sky = worldLevel===0 ? [.15,.22,.28] : worldLevel===1 ? [.24,.40,.56] : worldLevel===2 ? [.30,.50,.68] : [.40,.64,.86];
-  gl.clearColor(...sky,1);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  gl.enable(gl.DEPTH_TEST);
-
-  const targetCamX = player.x - Math.sin(player.yaw)*5.6;
-  const targetCamZ = player.z - Math.cos(player.yaw)*5.6;
-  const targetCamY = player.y + 3.5;
-  const smooth=1-Math.pow(.001,dt);
-  cam.x += (targetCamX-cam.x)*smooth;
-  cam.y += (targetCamY-cam.y)*smooth;
-  cam.z += (targetCamZ-cam.z)*smooth;
-
-  const view = lookAt([cam.x,cam.y,cam.z], [player.x,player.y+.8,player.z], [0,1,0]);
-  const proj = perspective(Math.PI/3, canvas.width/canvas.height, .1, 100);
-
-  gl.uniformMatrix4fv(uView,false,new Float32Array(view));
-  gl.uniformMatrix4fv(uProj,false,new Float32Array(proj));
-
-  drawWorld();
-  updatePrompt();
-  drawMini();
-  requestAnimationFrame(frame);
+ resize();const dt=Math.min((t-last)/1000,.033);last=t;update(dt);
+ const sky=world===0?[.34,.46,.55]:world===1?[.40,.57,.69]:world===2?[.48,.66,.78]:[.56,.73,.84];
+ gl.clearColor(...sky,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.enable(gl.CULL_FACE);
+ const tx=player.x-Math.sin(player.yaw)*6.3,tz=player.z-Math.cos(player.yaw)*6.3,ty=player.y+4.0;
+ const k=1-Math.pow(.001,dt);cam.x+=(tx-cam.x)*k;cam.y+=(ty-cam.y)*k;cam.z+=(tz-cam.z)*k;
+ const V=look([cam.x,cam.y,cam.z],[player.x,player.y+.9,player.z],[0,1,0]);
+ const P=persp(Math.PI/3,canvas.width/canvas.height,.1,100);
+ gl.uniformMatrix4fv(uV,false,new Float32Array(V));gl.uniformMatrix4fv(uPj,false,new Float32Array(P));
+ worldScene();prompt();requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 })();
